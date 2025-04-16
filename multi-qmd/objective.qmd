@@ -1,0 +1,9 @@
+# Objective {.unnumbered #sec-objective}
+
+We want to study deforestation in the state of Georgia. Our objective is to:
+
+1. Calculate the average annual deforestation rate overall (%/year) and per capita (ft²/year/capita) for all the counties in Georgia from 2001 to 2019.
+2. Find which county has lost the most forest overall (%/year) and per capita (ft²/year/capita).
+3. Find which county has lost the least or gained the most forest overall (%/year) and per capita (ft²/year/capita).
+4. Calculate the statewide annual average deforestation rate in percentage (%/year) and per capita (ft²/year/capita).
+5. Finally, report how many and what percentage of counties are worse than the two statewide average rates.

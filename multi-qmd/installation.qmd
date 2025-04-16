@@ -1,0 +1,28 @@
+# Installation {.unnumbered #sec-installation}
+
+## Software Requirements
+
+- Operating systems: 
+  - [Linux](https://www.kernel.org/)
+  - [macOS](https://www.apple.com/macos/)
+  - [Windows](https://www.microsoft.com/windows/)
+  
+- [GRASS GIS for Linux](https://grass.osgeo.org/download/linux/)
+- [GRASS GIS for macOS](https://grass.osgeo.org/download/mac/)
+- [GRASS GIS for Windows](https://grass.osgeo.org/download/windows/)
+
+## General Dependencies for GRASS 8 (Included in the Provided Windows Package)
+
+- [Python 3](https://www.python.org/)
+- [wxPython](https://www.wxpython.org/)
+
+For this workshop, we will use [my daily build](https://idea.isnew.info/how-to-compile-grass-gis-on-ms-windows/grass81-x86_64-w64-mingw32-osgeo4w64-latest.zip).
+
+## How to Install GRASS 8 on Windows
+
+This installation method does NOT require administrative rights because I have packaged GRASS 8 in an extractable ZIP file.
+
+1. Download [the latest daily build](https://idea.isnew.info/how-to-compile-grass-gis-on-ms-windows/grass81-x86_64-w64-mingw32-osgeo4w64-latest.zip) from [here](https://idea.isnew.info/how-to-compile-grass-gis-on-ms-windows.html).
+2. Extract it to `C:\`.
+3. Create a shortcut to `C:\OSGeo4W64\opt\grass\grass.bat`.
+4. Change the icon to `C:\OSGeo4W64\opt\grass\gui\icons\grass.ico`.

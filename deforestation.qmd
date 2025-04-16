@@ -1,0 +1,703 @@
+---
+title: "Deforestation study using GRASS GIS"
+author: "Huidae Cho"
+date: 2022-03-25
+date-modified: today
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    code-tools: true
+    code-copy: true
+    code-fold: false
+    html-math-method: katex
+    theme:
+      - cosmo
+categories: [bash, python, beginner]
+linkcolor: green
+urlcolor: green
+citecolor: green
+highlight-style: github
+# engine: knitr
+execute:
+  eval: false
+---
+
+# Welcome {.unnumbered #sec-index}
+
+::: columns
+
+::: {.column width="75%"}
+This workshop will give you an introduction to the Geographic Resources Analysis Support System ([GRASS GIS](https://grass.osgeo.org/)) and its brief history. We will define an objective for our deforestation study and install the latest daily build of GRASS 8 for Windows. You will learn its basic data structure and how to answer the questions in the objective using GRASS.
+:::
+::: {.column width="25%"}
+
+![](images/grassgis_logo_colorlogo_text_whitebg.png){width=60%}
+:::
+:::
+
+## Author {.unlisted}
+
+::: columns
+::: {.column width="25%"}
+
+![](images/portrait.png){width=80%}
+:::
+
+::: {.column width="75%"}
+Dr. Huidae Cho (`hidɛ t͡ɕo`) is a water resources engineer. He received his Ph.D. from Texas A&M University and teaches Geospatial Science and Computing in the Institute for Environmental and Spatial Analysis (IESA) at the University of North Georgia. He is a member of the GRASS GIS Development Team and Project Steering Committee.
+:::
+:::
+
+## Level {.unlisted}
+
+Basic. General GIS knowledge is required.
+
+## Requirements for the Attendees {.unlisted}
+
+- A computer running Windows
+  - An extractable version of GRASS 8 for Windows will be provided.
+  - Those running Linux or macOS will have to install GRASS 8 themselves.
+
+# Introduction {.unnumbered #sec-introduction}
+
+## GRASS GIS
+
+[GRASS GIS](https://grass.osgeo.org/) is an open-source GIS with over 500 modules, most of which provide advanced spatial analysis and modeling capabilities using raster, vector, 3-dimensional (3D), and temporal formats.  
+Its scientific modules are often used as plugins to other systems. For example, [QGIS](https://qgis.org/), another open-source GIS, implements a processing provider system that can borrow third-party GIS modules such as GRASS GIS and [SAGA GIS](https://saga-gis.sourceforge.io/). You may already be using GRASS modules when using QGIS!\
+
+- [Official website](https://grass.osgeo.org/)
+- [Source code repository](https://github.com/OSGeo/grass)
+
+## A Brief History of GRASS GIS
+
+- GRASS was born in 1982 by the U.S. Army Construction Engineering Research Laboratory (CERL).  
+  Watch [The GRASS Story](https://av.tib.eu/media/12963) (14:25).
+- In 1992, they released their last release of GRASS as version 4.1.  
+  They provided updates to version 4.1 through 1995 and developed the core components of version 5.
+- In 1997, GRASS development was taken over by Baylor University in Texas and then by the University of Hannover in Germany, led by [Markus Neteler](https://en.wikipedia.org/wiki/Markus_Neteler).
+- In October 1999, GRASS 5 was released as open source under the GNU General Public License (GPL).
+- In June 2000, Huidae Cho joined the core development team of GRASS after his contributions of master's work to the project.
+- In March 2005, GRASS 6 was released.
+- In February 2015, GRASS 7 was released.
+- In January 2022, GRASS 8 was released.
+
+# Objective {.unnumbered #sec-objective}
+
+We want to study deforestation in the state of Georgia. Our objective is to:
+
+1. Calculate the average annual deforestation rate overall (%/year) and per capita (ft²/year/capita) for all the counties in Georgia from 2001 to 2019.
+2. Find which county has lost the most forest overall (%/year) and per capita (ft²/year/capita).
+3. Find which county has lost the least or gained the most forest overall (%/year) and per capita (ft²/year/capita).
+4. Calculate the statewide annual average deforestation rate in percentage (%/year) and per capita (ft²/year/capita).
+5. Finally, report how many and what percentage of counties are worse than the two statewide average rates.
+
+# Installation {.unnumbered #sec-installation}
+
+## Software Requirements
+
+- Operating systems: [Linux](https://www.kernel.org/), [macOS](https://www.apple.com/macos/), [Windows](https://www.microsoft.com/windows/)
+- [GRASS GIS for Linux](https://grass.osgeo.org/download/linux/)
+- [GRASS GIS for macOS](https://grass.osgeo.org/download/mac/)
+- [GRASS GIS for Windows](https://grass.osgeo.org/download/windows/)
+- General Dependencies for GRASS 8 (Included in the Provided Windows Package)
+   - [Python 3](https://www.python.org/)
+   - [wxPython](https://www.wxpython.org/)
+
+For this workshop, we will use [my daily build](https://idea.isnew.info/how-to-compile-grass-gis-on-ms-windows/grass81-x86_64-w64-mingw32-osgeo4w64-latest.zip).
+
+## How to Install GRASS 8 on Windows
+
+This installation method does NOT require administrative rights because I have packaged GRASS 8 in an extractable ZIP file.
+
+1. Download [the latest daily build](https://idea.isnew.info/how-to-compile-grass-gis-on-ms-windows/grass81-x86_64-w64-mingw32-osgeo4w64-latest.zip) from [here](https://idea.isnew.info/how-to-compile-grass-gis-on-ms-windows.html).
+2. Extract it to `C:\`.
+3. Create a shortcut to `C:\OSGeo4W64\opt\grass\grass.bat`.
+4. Change the icon to `C:\OSGeo4W64\opt\grass\gui\icons\grass.ico`.
+
+# Basics {.unnumbered #sec-basics}
+
+## First Look
+
+Let's run GRASS for the first time by clicking the shortcut.
+
+![](images/grass-startup.png){width=100%}
+
+GRASS consists of three windows including the main GUI (top left), map display (top right), and the terminal (bottom). By default, it comes with a country boundaries vector map in the PERMANENT mapset of the world_latlong_wgs84 location. The Coordinate Reference System (CRS) of this default location is [EPSG:4326](https://epsg.org/crs_4326/WGS-84.html).
+
+Close the information popup and play in the display window. Hover the mouse cursor over each icon and see help messages. For more information, check [the wxGUI manual](https://grass.osgeo.org/grass-stable/manuals/wxGUI.html).
+
+## Data Structure
+
+GRASS organizes geospatial data into its own open-data structure. The GRASS data structure is hierarchically divided into three physical layers or directories: databases, locations, and mapsets. A database typically contains multiple locations, which in turn can consist of multiple mapsets. Raster and vector maps are stored in a mapset. See the following database directory structure:
+
+```bash
+ database
+ |
+ +- location
+ |  |
+ |  +- PERMANENT
+ |  |  |
+ |  |  +- raster
+ |  |  +- raster
+ |  |  +- vector
+ |  |  +- vector
+ |  |
+ |  +- mapset
+ |     |
+ |     +- vector
+ |     +- vector
+ |
+ +- location
+    |
+    +- PERMANENT
+       |
+       +- raster
+       +- raster
+       +- vector
+```
+
+Unlike locations and mapsets, which have their parent layer, a database is at the top level and has no parents.  In other words, multiple databases do not have to belong to a parent directory and they can be dispersed across the storage device.
+
+A CRS is assigned to a location, which means that a location's child mapsets and their maps share the same CRS of the location. In one location, maps with different CRSs cannot be stored.
+
+Each location has a special mapset called PERMANENT. GRASS was originally designed with concurrent multi-user environments like UNIX in mind. The PERMANENT mapset provides a common place for shared maps. Maps in this mapset are accessible from other mapsets in the same location by default.
+
+Non-PERMANENT mapsets can be created by a user and, depending on read/write permissions, other users may or may not have access to maps in a non-PERMANENT mapset. On Windows, where typically only one user is logged in and active at a time, this permission concept is not really relevant.
+
+## Module Naming
+
+GRASS has naming conventions for module names. The main data type that a module handles becomes a prefix. For example, a module dealing mostly with raster data starts with `r.`. The full list of prefixes is as follows:
+
+- `d.` for display modules
+- `db.` for database modules
+- `g.` for general modules
+- `i.` for imagery modules
+- `m.` for miscellaneous modules
+- `ps.` for PostScript modules
+- `r.` for raster modules
+- `r3.` for 3D raster (voxel) modules
+- `t.` for temporal modules
+- `v.` for vector modules Basics {.unnumbered #sec-basics}
+
+# Data {.unnumbered #sec-data}
+
+For this workshop, we will use the National Land Cover Database (NLCD) from the [Multi-Resolution Land Characteristics (MRLC) Consortium](https://www.mrlc.gov), but you can use your own forest data. We can download the following land cover data sets and Georgia counties shapefile:
+
+* [NLCD 2001 Land Cover (CONUS)](https://s3-us-west-2.amazonaws.com/mrlc/nlcd_2001_land_cover_l48_20210604.zip) (1.8 GB)
+* [NLCD 2019 Land Cover (CONUS)](https://s3-us-west-2.amazonaws.com/mrlc/nlcd_2019_land_cover_l48_20210604.zip) (2.3 GB)
+* [Counties Georgia](https://opendata.arcgis.com/datasets/dc20713282734a73abe990995de40497_68.zip) (4.9 MB)
+
+# Creating a New Location {.unnumbered #sec-creating-new-location}
+
+## Figuring out the projection of NLCD data
+
+Any data providers should provide metadata about their data. NLCD data sets also come with XML metadata files. For example, for the 2001 NLCD data, we can find the `nlcd_2001_land_cover_l48_20210604.xml` file. The `<spref>` tag in this metadata file is what we need. NLCD uses its own custom projection. [This search](https://spatialreference.org/ref/?search=nlcd) will give a list of spatial references that mention NLCD. All these spatial references use the Geodetic Reference System 1980 (GRS80) ellipsoid, but I found that NLCD has recently (not sure when) changed the ellipsoid from GRS80 to the World Geodetic System 1984 (WGS84). These two ellipsoids are almost identical, but they are different. To import NLCD data, we need to create a new location in the Albers Conical Equal Area projection with the WGS84 ellipsoid. There are some more details in the metadata file. We have two options:
+
+1. manually construct projection parameters for GRASS or
+2. use a GRASS module to create a new location in the NLCD projection.
+
+Which method do I prefer? Well... option (2) of course unless I know I already have a location in the desired projection.
+
+There are three important modules in GRASS that can import raster data:
+
+- `r.in.gdal`: Imports raster data into the current or a new location
+- `r.import`: Imports and reprojects raster data on the fly into the current location
+- `r.external`: Links external raster data sources as a pseudo raster map
+
+Since the NLCD data sets we downloaded are huge (40 GB uncompressed), we just want to create links to these files using `r.external` and extract the Georgia area later for our study. Both `r.in.gdal` and `r.external` provide the `-j` flag that checks the projection and exits. However, only `r.in.gdal` can create a new location using the `-c` flag and the projection information. We'll check the projection first.
+
+Extract the ZIP files first.
+
+```bash
+cd /users/USERNAME/downloads
+unzip Counties_Georgia.zip
+unzip nlcd_2001_land_cover_148_20210604.zip
+unzip nlcd_2019_land_cover_148_20210604.zip
+```
+
+Use `r.in.gdal` to check the projection of NLCD 2001.
+
+```bash
+r.in.gdal -j input=nlcd_2001_land_cover_l48_20210604.img
+```
+
+outputs
+
+```bash
+Projection of dataset does not appear to match current location.
+
+Location PROJ_INFO is:
+name: Lat/Lon
+proj: ll
+datum: wgs84
+ellps: wgs84
+init: EPSG:4326
+
+Dataset PROJ_INFO is:
+name: Albers Conical Equal Area
+datum: wgs84
+ellps: wgs84
+proj: aea
+lat_0: 23
+lon_0: -96
+lat_1: 29.5
+lat_2: 45.5
+x_0: 0
+y_0: 0
+no_defs: defined
+
+Difference in: proj
+```
+
+Use `v.in.ogr` to check the projection of `Counties_Georgia.shp`.
+
+```bash
+v.in.ogr -j input=Counties_Georgia.shp
+```
+
+outputs
+
+```bash
+Projection of input dataset and current location appear to match
+```
+
+## Creating a new location for NLCD data
+
+The projection of `Counties_Georgia.shp` is the same as that of the default location in EPSG:4326, which is not really *projected*. Let's use the projection of NLCD because:
+
+1. it is *projected* and
+2. its data size is too large to reproject.
+
+We can create a new location using `r.in.gdal`. Since creating a new location won't import any data, the output parameter's value doesn't matter.
+
+```bash
+r.in.gdal -c input=nlcd_2001_land_cover_l48_20210604.img output=dummy \
+             location=aea-nlcd-wgs84
+```
+
+Note that I used `aea-nlcd-wgs84` as the location name. This location name includes projection information, which will be useful later when you need to import other data in the same projection.
+
+## Switching the current location
+
+Reload GRASS locations in the Data tab and switch to the PERMANENT mapset in `aea-nlcd-wgs84`.
+
+# Importing Data {.unnumbered #sec-importing-data}
+
+## Importing Georgia Counties Data
+
+Similar to the three raster modules above, there are three vector modules that we can use to import vector data:
+
+- `v.in.ogr`: Imports vector data into the current or a new location
+- `v.import`: Imports and reprojects vector data on the fly into the current location
+- `v.external`: Links external vector data sources as a pseudo vector map
+
+Since `Counties_Georgia.shp` is small, let's use `v.import` to import/reproject it into the NLCD location.
+
+```bash
+v.import input=Counties_Georgia.shp output=ga_counties
+```
+
+Reload the current mapset and add `ga_counties` to the map display.
+
+![](images/ga_counties.png)
+
+## Linking NLCD Data
+
+Now, we need to link the NLCD data sets as pseudo GRASS raster maps since the data is just too large.
+
+```bash
+r.external -e input=nlcd_2001_land_cover_l48_20210604.img output=nlcd2001
+r.external -e input=nlcd_2019_land_cover_l48_20210604.img output=nlcd2019
+```
+
+We used the `-e` flag to extend the extent of the location to each data set.
+
+# Clipping Data {.unnumbered #sec-clipping-data}
+
+## Setting the Computational Region
+
+In GRASS, there is a concept called computational region. A computational region is a region where any raster computations occur. It can save a lot of computational time, especially when the full extent of the data set is larger than the area of interest. We'll set the computational region to the extent of Georgia.
+
+```bash
+g.region -ap vector=ga_counties res=30
+```
+
+In this command, we use the `ga_counties` vector map to calculate the extent and `res=30` to set the correct resolution. Without the `-a` flag, the extent will be set first, and the resolution will be adjusted slightly. With this flag, the resolution will be forced first, and the extent will be adjusted later. Since we know the resolution of the NLCD data set, we want to force the correct resolution of 30 meters. The `-p` flag will print the final settings.
+
+## Extracting NLCD Data for Georgia
+
+The CONUS NLCD data sets cover the entire Continental United States (CONUS), but our area of interest is restricted to Georgia. We want to extract only this area to make further analysis more efficient. We can use `r.mask` and `r.mapcalc`.
+
+```bash
+r.mask vector=ga_counties
+r.mapcalc expression="ga_nlcd2001=nlcd2001"
+r.mapcalc expression="ga_nlcd2016=nlcd2016"
+r.mask -r
+```
+
+# Creating a Project Mapset {.unnumbered #sec-creating-a-project-mapset}
+
+We have imported all the raster and vector maps that we need for our study into the same location that can be used for any other projects as well. Now, we want to isolate these "clean" maps from other maps that we’ll create later for our analysis. This way of map organization is just my personal preference to separate out "project-specific" data from "global" data in the PERMANENT mapset. Create a new mapset called `ga-deforestation` in the `aea-nlcd-wgs84` location. You will automatically be switched to the new mapset. 
+
+Restrict the computational region to Georgia using the `ga_nlcd2001` raster.
+
+```bash
+g.region -p raster=ga_nlcd2001
+```
+
+# Reclassifying NLCD Data {.unnumbered #sec-reclassifying-nlcd-data}
+
+NLCD data sets have many classes defined [here](https://www.mrlc.gov/data/legends/national-land-cover-database-class-legend-and-description), but we're only interested in forest area. There are three forest classes including 41, 42, and 43, but, in general, we can say any 40s classes are forest. We can either extract these classes as 1 and the other classes as 0 using `r.mapcalc`, or reclassify them using `r.reclass`. In most cases, reclassifying will be much faster than performing map algebra, so we want to use `r.reclass`. First, let's reclassify the 2001 land cover map. This module expects a rule file, but we'll just type directly in the console (a special filename `-`). The `*` symbol means the rest of cell values, so we don't want to use it in the first line.
+
+```bash
+r.reclass input=ga_nlcd2001 output=ga_forest2001 rules=-
+```
+
+Type the following rules in the prompt:
+
+```bash
+40 thru 49 = 1 forest
+* = 0 non-forest
+end
+```
+
+Then, repeat it for the 2019 map.
+
+```bash
+r.reclass input=ga_nlcd2019 output=ga_forest2019 rules=-
+```
+
+Type the following rules in the prompt:
+
+```bash
+40 thru 49 = 1 forest
+* = 0 non-forest
+end
+```
+
+# Displaying Maps Together {.unnumbered #sec-displaying-maps-together}
+
+Using the highlighted icon below, we can add multiple maps at once.
+
+![](images/layer-manager.png)
+
+Zoom to the study area by selecting `ga_counties` and clicking the zoom to layer button. Go to the properties window of `ga_counties`, and change the feature and area fill colors to red and transparent, respectively.
+
+![](images/map-display.png)
+
+# Calculating Forest Change Rates {.unnumbered #sec-calculating-forest-change-rates}
+
+## Counting the Number of Forest Cells by County
+
+First, we need to copy the `ga_counties` vector map from the PERMANENT mapset to the project mapset because the PERMANENT mapset is read-only and we cannot add new columns to the map.
+
+```bash
+g.copy vector=ga_counties@PERMANENT,ga_counties
+```
+
+In this command, the first `ga_counties` refers to the existing map in PERMANENT and the second one to a new map that will be created in the current mapset.
+
+```bash
+v.rast.stats map=ga_counties raster=ga_forest2001 column_prefix=forest2001 method=sum
+v.rast.stats map=ga_counties raster=ga_forest2019 column_prefix=forest2019 method=sum
+```
+
+## Calculating the Forest Area in Square Miles by County
+
+So how big is each cell? Or what is the resolution? This command will print the current region (`-p`) and its resolution in meters (`-m`).
+
+```bash
+g.region -pm
+```
+
+Outputs:
+
+```bash
+projection: 99 (Albers Conical Equal Area)
+zone:       0
+datum:      wgs84
+ellipsoid:  wgs84
+north:      1405920
+south:      905520
+west:       939180
+east:       1427310
+nsres:      30
+ewres:      30
+rows:       16680
+cols:       16271
+cells:      271400280
+```
+
+Read `nsres` (North-South resolution) or `ewres` (East-West resolution). That's 30 meters, so the conversion factor is `0.000347491943 mi²` (900 m²) per cell.
+
+Add new columns to store the forest area and calculate these columns.
+
+```bash
+v.db.addcolumn map=ga_counties \
+               columns="forest2001_sqmi double, forest2019_sqmi double"
+v.db.update map=ga_counties column=forest2001_sqmi \
+            query_column="0.000347491943*forest2001_sum"
+v.db.update map=ga_counties column=forest2019_sqmi \
+            query_column="0.000347491943*forest2019_sum"
+```
+
+## Calculating the Annual Average Forest Change Rate by County
+
+Add a new column and calculate the forest change rate per year.
+
+```bash
+v.db.addcolumn map=ga_counties columns="forestrate0119 double"
+v.db.update map=ga_counties column=forestrate0119 \
+            query_column="(forest2019_sqmi-forest2001_sqmi)/forest2001_sqmi/18*100"
+```
+
+## Calculating the Average Annual Forest Change Rate in Square Feet Per Capita by County
+
+For this calculation, let's add a new column again and calculate the per-capita forest change rate in square feet per year per person.
+
+```bash
+v.db.addcolumn map=ga_counties columns="forestratecap0119 double"
+v.db.update map=ga_counties column=forestratecap0119 \
+            query_column="(forest2019_sqmi-forest2001_sqmi)/totpop10*2.788e7/18"
+```
+
+## Calculating the Statewide Forest Change Statistics
+
+We can sum the `forest2001_sqmi`, `forest2019_sqmi`, and `totpop10` columns.
+
+```bash
+v.db.univar map=ga_counties column=forest2001_sqmi
+```
+
+Outputs:
+
+```bash
+Number of values: 159
+Minimum: 37.635809870501
+Maximum: 353.989347350214
+Range: 316.353537479713
+Mean: 163.940404513716
+Arithmetic mean of absolute values: 163.940404513716
+Variance: 5822.20787306518
+Standard deviation: 76.3033935881307
+Coefficient of variation: 0.465433727667465
+Sum: 26066.5243176808
+```
+
+```bash
+v.db.univar map=ga_counties column=forest2019_sqmi
+```
+
+Outputs:
+
+```bash
+Number of values: 159
+Minimum: 32.380689216512
+Maximum: 356.112870613887
+Range: 323.732181397375
+Mean: 155.550052009654
+Arithmetic mean of absolute values: 155.550052009654
+Variance: 5654.94308130134
+Standard deviation: 75.1993555909978
+Coefficient of variation: 0.483441532930702
+Sum: 24732.4582695351
+```
+
+```bash
+v.db.univar map=ga_counties column=totpop10
+```
+
+Outputs:
+
+```bash
+Number of values: 159
+Minimum: 1717
+Maximum: 920581
+Range: 918864
+Mean: 60928.6352201258
+Arithmetic mean of absolute values: 60928.6352201258
+Variance: 16051276953.0493
+Standard deviation: 126693.63422465
+Coefficient of variation: 2.07937751710546
+Sum: 9687653
+```
+
+From the above outputs, we found that the total forest areas in 2001 and 2019 in the state are `26,067 mi²` and `24,732 mi²`, respectively, and the total population in 2010 is `9,687,653` people. It was not really intended, but we're using the total population in 2010, which is somewhere in between 2001 and 2019. That's not too bad! What is the annual average statewide forest change rate in percentage? That is:
+
+$$
+\frac{24,732 \, \text{mi}^2 - 26,067 \, \text{mi}^2}{26,067 \, \text{mi}^2} \times \frac{1}{18 \, \text{years}} \times 100\% = -0.28\%/\text{year}
+$${#eq-forest_change_rate}
+
+What is the annual average statewide forest change rate in `ft²` per capita? That is:
+
+$$
+\begin{align}
+\frac{24,732 \, \text{mi}^2 - 26,067 \, \text{mi}^2}{9,687,653 \, \text{people}} \times 2.788 \times 10^7 \, \text{ft}^2/\text{mi}^2 &\\
+\times \frac{1}{18 \, \text{years}} = -213 \, &\text{ft}^2/\text{year}/\text{capita}
+\end{align}
+$${#eq-forest_change_rate_per_capita}
+
+
+# Answering the questions {.unnumbered #sec-answering-the-question}
+## Using the Attribute Table
+
+Now, we have two statewide forest change statistics from the equations @eq-forest_change_rate and @eq-forest_change_rate_per_capita, and can compare individual counties to these statistics in the attribute table of `ga_counties`. Right-click on the `ga_counties` layer and open the attribute table. Sort the table by the `forestrate0119` or `forestratecap0119` column, and compare the results.
+
+## Using v.db.select
+
+We can use `v.db.select` to query the database directly.
+
+```bash
+v.db.select map=ga_counties columns="NAME10,min(forestrate0119)"
+```
+
+This command will give you the worst county in terms of the deforestation rate, which is Gwinnett County.
+
+```bash
+v.db.select map=ga_counties columns="NAME10,max(forestrate0119)"
+```
+
+This command will give you the best county in terms of the deforestation rate, which is Terrell County.
+
+Similarly, the following two commands will give you the worst and best counties in terms of deforestation per capita, which are Clinch and Lincoln Counties, respectively.
+
+```bash
+v.db.select map=ga_counties columns="NAME10,min(forestratecap0119)"
+v.db.select map=ga_counties columns="NAME10,max(forestratecap0119)"
+```
+
+How many counties are worse than the statewide average in percentage?
+
+```bash
+v.db.select map=ga_counties column="count(*)" where="forestrate0119 < -0.28"
+```
+
+Total 73 counties are worse than the state average.
+
+How many are better than the statewide average in percentage?
+
+```bash
+v.db.select map=ga_counties column="count(*)" where="forestrate0119 > -0.28"
+```
+
+Total 86 counties are better than the state average.
+
+There are total 159 counties in Georgia, so these two numbers add up correctly.
+
+Similarly, how many counties are worse or better than the statewide average in square feet per capita?
+
+```bash
+v.db.select map=ga_counties column="count(*)" where="forestratecap0119 < -213"
+```
+
+Total 74 counties are worse than the state average.
+
+```bash
+v.db.select map=ga_counties column="count(*)" where="forestratecap0119 > -213"
+```
+
+Total 85 counties are better than the state average.
+
+# Discussions {.unnumbered #sec-discussions}
+
+Near-zero forest change rates do not necessarily mean near-zero logging. Why? How can we take into account spatial forest disturbances?
+
+See:
+
+- [`r.pi`](https://iris.unitn.it/retrieve/handle/11572/179791/192289/MEE_2017.pdf): A GRASS GIS package for semi-automatic spatial pattern analysis of remotely sensed land cover data ([`r.pi.corr.mw`](https://grass.osgeo.org/grass-stable/manuals/addons/r.pi.corr.mw.html) - Moving window correlation analysis)
+- [`MWinPy`](https://github.com/ocsmit/mwinpy)
+
+# Conclusions {.unnumbered #sec-conclusions}
+
+## Final Answers
+
+1. Calculate the average annual deforestation rate overall (%/year) and per capita (ft²/year/capita) for all the counties in Georgia from 2001 and 2019.
+   - Calculated in the `forestrate0119` and `forestratecap0119` columns in `ga_counties`.
+   - Negative values indicate deforestation while positive values indicate reforestation.
+
+2. Find which county has lost the most forest overall (%/year) and per capita (ft²/year/capita).
+   - The worst overall county is Gwinnett.
+   - The worst per-capita county is Clinch.
+
+3. Find which county has lost the least or gained the most forest overall (%/year) and per capita (ft²/year/capita).
+   - The best overall county is Terrell.
+   - The best per-capita county is Lincoln.
+
+4. Calculate the statewide annual average deforestation rate in percentage (%/year) and per capita (ft²/year/capita).
+   - The statewide annual average deforestation rate is -0.28%/year.
+   - The statewide annual average deforestation rate per capita is -213 ft²/year/capita.
+
+5. Finally, report how many and percentage of counties are worse than the two statewide average rates.
+   - Total 73 counties (45.9%) are worse than the statewide average deforestation rate.
+   - Total 74 counties (46.5%) are worse than the statewide average deforestation rate per capita.
+
+## Future Considerations
+
+Consider spatial forest disturbances induced by human activities.
+
+# Hints {.unnumbered #sec-hints}
+
+## Module Help
+
+Use `module_name help` to show help.
+
+```bash
+$ r.in.gdal help
+Imports raster data into a GRASS raster map using GDAL library.
+
+Usage:
+ r.in.gdal [-ojeflakcrp] input=name output=name
+   [band=value[,value,...]] [memory=memory in MB] [target=name]
+   [title=phrase] [offset=value] [num_digits=value] [map_names_file=name]
+   [location=name] [table=file] [gdal_config=string] [gdal_doo=string]
+   [--overwrite] [--help] [--verbose] [--quiet] [--ui]
+
+Flags:
+  -o   Override projection check (use current location's projection)
+  -j   Perform projection check only and exit
+  -e   Extend region extents based on new dataset
+  -f   List supported formats and exit
+  -l   Force Lat/Lon maps to fit into geographic coordinates (90N,S; 180E,W)
+  -a   Auto-adjustment for lat/lon
+  -k   Keep band numbers instead of using band color names
+  -c   Create the location specified by the "location" parameter and exit. Do not import the raster file.
+  -r   Limit import to the current region
+  -p   Print number of bands and exit
+
+Parameters:
+           input   Name of raster file to be imported
+          output   Name for output raster map
+            band   Band(s) to select (default is all bands)
+          memory   Maximum memory to be used (in MB)
+                   default: 300
+          target   Name of GCPs target location
+           title   Title for resultant raster map
+          offset   Offset to be added to band numbers
+                   default: 0
+      num_digits   Zero-padding of band number by filling with leading zeros up to given number
+                   default: 0
+  map_names_file   Name of the output file that contains the imported map names
+        location   Name for new location to create
+           table   File prefix for raster attribute tables
+     gdal_config   GDAL configuration options
+        gdal_doo   GDAL dataset open options
+```
+
+## Module Manual
+
+Use `g.manual module_name` to display the manual page in the browser.
+
+```bash
+$ g.manual r.in.gdal
+```
+
+## Module GUI
+
+If you are not familiar with the command line or typing and want to use the Graphical User Interface (GUI), most modules will start the GUI when no options are given. However, some modules that do not require any options will just run without opening the GUI. In this case, use the `--ui` flag.
+
+```bash
+$ r.in.gdal --ui
+$ r.in.gdal
+```
+

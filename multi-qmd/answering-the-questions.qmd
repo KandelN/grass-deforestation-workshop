@@ -1,0 +1,61 @@
+# Using the Attribute Table {.unnumbered #sec-using-the-attribute-table}
+
+Now, we have two statewide forest change statistics from the equations `forest_change_rate` and `forest_change_rate_per_capita`, and can compare individual counties to these statistics in the attribute table of `ga_counties`.
+
+1. Right-click on the `ga_counties` layer and open the attribute table.
+2. Sort the table by the `forestrate0119` or `forestratecap0119` column, and compare the results.
+
+# Using v.db.select {.unnumbered #sec-using-v-db-select}
+
+We can use `v.db.select` to query the database directly.
+
+```bash
+v.db.select map=ga_counties columns="NAME10,min(forestrate0119)"
+```
+
+This command will give you the worst county in terms of the deforestation rate, which is Gwinnett County.
+
+```bash
+v.db.select map=ga_counties columns="NAME10,max(forestrate0119)"
+```
+
+This command will give you the best county in terms of the deforestation rate, which is Terrell County.
+
+Similarly, the following two commands will give you the worst and best counties in terms of deforestation per capita, which are Clinch and Lincoln Counties, respectively.
+
+```bash
+v.db.select map=ga_counties columns="NAME10,min(forestratecap0119)"
+v.db.select map=ga_counties columns="NAME10,max(forestratecap0119)"
+```
+
+How many counties are worse than the statewide average in percentage?
+
+```bash
+v.db.select map=ga_counties column="count(*)" where="forestrate0119 < -0.28"
+```
+
+Total 73 counties are worse than the state average.
+
+How many are better than the statewide average in percentage?
+
+```bash
+v.db.select map=ga_counties column="count(*)" where="forestrate0119 > -0.28"
+```
+
+Total 86 counties are better than the state average.
+
+There are total 159 counties in Georgia, so these two numbers add up correctly.
+
+Similarly, how many counties are worse or better than the statewide average in square feet per capita?
+
+```bash
+v.db.select map=ga_counties column="count(*)" where="forestratecap0119 < -213"
+```
+
+Total 74 counties are worse than the state average.
+
+```bash
+v.db.select map=ga_counties column="count(*)" where="forestratecap0119 > -213"
+```
+
+Total 85 counties are better than the state average.
