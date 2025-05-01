@@ -10,7 +10,7 @@ format: html
 
 Let's run GRASS for the first time by clicking the shortcut.
 
-![GRASS Startup](images/grass-startup.png){width=100%}
+![GRASS Startup](images/grass-startup.webp){width=100%}
 
 GRASS consists of three windows including the main GUI (top left), map display (top right), and the terminal (bottom).  
 By default, it comes with a country boundaries vector map in the PERMANENT mapset of the world_latlong_wgs84 location.  
@@ -89,7 +89,7 @@ The full list of prefixes is as follows:
 
 Let's run GRASS for the first time by clicking the shortcut.
 
-![GRASS Startup](images/grass-startup.png){width=100%}
+![GRASS Startup](images/grass-startup.webp){width=100%}
 
 GRASS consists of three windows including the main GUI (top left), map display (top right), and the terminal (bottom).  
 By default, it comes with a country boundaries vector map in the PERMANENT mapset of the world_latlong_wgs84 location.  

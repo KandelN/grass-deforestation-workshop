@@ -16,7 +16,7 @@ v.import input=Counties_Georgia.shp output=ga_counties
 
 Reload the current mapset and add `ga_counties` to the map display.
 
-![](images/ga_counties.png)
+![](images/ga_counties.webp)
 
 ## Linking NLCD Data
 

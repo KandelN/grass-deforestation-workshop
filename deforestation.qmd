@@ -32,7 +32,7 @@ This workshop will give you an introduction to the Geographic Resources Analysis
 :::
 ::: {.column width="25%"}
 
-![](images/grassgis_logo_colorlogo_text_whitebg.png){width=60%}
+![](images/grassgis_logo_colorlogo_text_whitebg.webp){width=60%}
 :::
 :::
 
@@ -41,7 +41,7 @@ This workshop will give you an introduction to the Geographic Resources Analysis
 ::: columns
 ::: {.column width="25%"}
 
-![](images/portrait.png){width=80%}
+![](images/portrait.webp){width=80%}
 :::
 
 ::: {.column width="75%"}
@@ -121,7 +121,7 @@ This installation method does NOT require administrative rights because I have p
 
 Let's run GRASS for the first time by clicking the shortcut.
 
-![](images/grass-startup.png){width=100%}
+![](images/grass-startup.webp){width=100%}
 
 GRASS consists of three windows including the main GUI (top left), map display (top right), and the terminal (bottom). By default, it comes with a country boundaries vector map in the PERMANENT mapset of the world_latlong_wgs84 location. The Coordinate Reference System (CRS) of this default location is [EPSG:4326](https://epsg.org/crs_4326/WGS-84.html).
 
@@ -300,7 +300,7 @@ v.import input=Counties_Georgia.shp output=ga_counties
 
 Reload the current mapset and add `ga_counties` to the map display.
 
-![](images/ga_counties.png)
+![](images/ga_counties.webp)
 
 ## Linking NLCD Data
 
@@ -380,11 +380,11 @@ end
 
 Using the highlighted icon below, we can add multiple maps at once.
 
-![](images/layer-manager.png)
+![](images/layer-manager.webp)
 
 Zoom to the study area by selecting `ga_counties` and clicking the zoom to layer button. Go to the properties window of `ga_counties`, and change the feature and area fill colors to red and transparent, respectively.
 
-![](images/map-display.png)
+![](images/map-display.webp)
 
 # Calculating Forest Change Rates {.unnumbered #sec-calculating-forest-change-rates}
 
